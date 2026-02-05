@@ -1,5 +1,6 @@
-const API_KEY = 'YOUR_API_KEY_HERE';
-const BASE_URL = 'https://www.omdbapi.com/';
+const API_KEY = 'be6e31b1bc6dfaaab624b894c277db38';
+const BASE_URL = 'https://api.themoviedb.org/3';
+const IMG_URL = 'https://image.tmdb.org/t/p/w500';
 
 const form = document.getElementById('search-form');
 const input = document.getElementById('search-input');
@@ -23,31 +24,39 @@ form.addEventListener('submit', async (e) => {
     statusText.textContent = '';
     renderMovies(movies);
   } catch (err) {
-    statusText.textContent = 'Something went wrong.';
+    statusText.textContent = 'Error fetching movies.';
   }
 });
 
 async function searchMovies(query) {
-  const res = await fetch(`${BASE_URL}?apikey=${API_KEY}&s=${query}`);
+  const res = await fetch(
+    `${BASE_URL}/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(query)}`
+  );
   const data = await res.json();
-  return data.Search || [];
+  return data.results;
 }
 
 function renderMovies(movies) {
+  results.innerHTML = '';
+
   movies.forEach(movie => {
     const card = document.createElement('div');
     card.className = 'card';
 
-    const poster =
-      movie.Poster !== 'N/A'
-        ? movie.Poster
-        : 'https://via.placeholder.com/300x450?text=No+Image';
+    const poster = movie.poster_path
+      ? IMG_URL + movie.poster_path
+      : 'https://via.placeholder.com/300x450?text=No+Image';
+
+    const title = movie.title || 'Untitled';
+    const year = movie.release_date
+      ? movie.release_date.substring(0, 4)
+      : 'N/A';
 
     card.innerHTML = `
-      <img src="${poster}" alt="${movie.Title}">
+      <img src="${poster}" alt="${title}">
       <div class="content">
-        <h3>${movie.Title}</h3>
-        <p>${movie.Year}</p>
+        <h3>${title}</h3>
+        <p>${year}</p>
       </div>
     `;
 
